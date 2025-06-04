@@ -1,0 +1,2 @@
+DJANGO_SETTINGS_MODULE=tools.settings.production
+DEBUG=False

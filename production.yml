@@ -1,0 +1,43 @@
+version: '3.9'
+
+volumes:
+  local_postgres_data: {}
+
+services:
+  django:
+    build:
+      context: .
+      dockerfile: ./compose/production/django/Dockerfile
+    image: django_prod
+    container_name: django_prod
+    depends_on:
+      - postgres
+    volumes:
+      - .:/app
+    env_file:
+      - ./envs/production/.django
+    networks:
+      - es-net
+    ports:
+      - '8000:8000'
+    command: gunicorn tools.asgi --bind 0.0.0.0:8000 -k uvicorn.workers.UvicornWorker
+
+  postgres:
+    build:
+      context: .
+      dockerfile: ./compose/production/postgres/Dockerfile
+    image: postgres_prod
+    container_name: postgres_prod
+    volumes:
+      - local_postgres_data:/var/lib/postgresql/data
+    env_file:
+      - ./envs/production/.postgres
+    networks:
+      - es-net
+    ports:
+      - '5432:5432'
+
+
+networks:
+  es-net:
+    driver: bridge
