@@ -1,0 +1,22 @@
+databases:
+  - name: toolsDB
+    plan: free
+    databaseName: tools_db_04062025
+    user: binhdiep
+
+services:
+  - type: web
+    plan: free
+    name: tools
+    runtime: python
+    buildCommand: './build.sh'
+    startCommand: 'python -m gunicorn tools.asgi:application -k uvicorn.workers.UvicornWorker'
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: toolsDB
+          property: connectionString
+      - key: SECRET_KEY
+        generateValue: true
+      - key: WEB_CONCURRENCY
+        value: 4
